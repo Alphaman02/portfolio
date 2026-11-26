@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{% if not profile %}
+<main class="wrap empty">
+  <h1>Your portfolio is ready for content</h1>
+  <p>Open <a href="/admin/">/admin</a>, sign in, and add a Profile to get started.</p>
+</main>
+{% else %}
+<main>
+  <section class="hero" id="home">
+    <div class="wrap">
+      <p class="hi">// Hi, I'm</p>
+      <h1>{{ profile.full_name }}<span class="dot">.</span></h1>
+      <p class="role">{{ profile.title }}</p>
+      <p class="lead">{{ profile.intro }}</p>
+      <div class="actions">
+        {% if profile.cv or static_cv %}
+        <a class="btn primary" href="{% if profile.cv %}{{ profile.cv.url }}{% else %}{% static 'cv.pdf' %}{% endif %}" download>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>
+          Download Resume
+        </a>
+        {% endif %}
+        <a class="btn" href="#contact">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          Contact Me
+        </a>
+      </div>
+      {% if profile.photo %}
+      <div class="photo-wrap"><img class="photo" src="{{ profile.photo.url }}" alt="Photo of {{ profile.full_name }}"></div>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if profile.about %}
+  <section class="wrap section" id="about">
+    <h2><span class="slash">//</span> About</h2>
+    <p class="sub">A little about me</p>
+    <div class="card prose">{{ profile.about|linebreaks }}</div>
+  </section>
+  {% endif %}
+
+  <section class="wrap section" id="skills">
+    <h2><span class="slash">//</span> Skills</h2>
+    <p class="sub">Technologies and tools I work with</p>
+    <div class="stack">
+      {% for g in skill_groups %}
+      <div class="card">
+        <h3 class="label">{{ g.label }}</h3>
+        <ul class="chips green">{% for s in g.skills %}<li>{{ s.name }}</li>{% endfor %}</ul>
+      </div>
+      {% empty %}<p class="none">No skills added yet.</p>{% endfor %}
+    </div>
+  </section>
+
+  <section class="wrap section" id="projects">
+    <h2><span class="slash">//</span> Projects</h2>
+    <p class="sub">Things I've built and contributed to</p>
+    <div class="grid">
+      {% for p in projects %}
+      <article class="card project">
+        {% if p.image %}
+        <div class="shot">
+          <img src="{{ p.image.url }}" alt="Screenshot of {{ p.title }}">
+          {% if p.featured %}<span class="badge"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.9L12 17.6 5.9 21l1.2-6.9-5-4.8 6.9-.9z"/></svg>Featured</span>{% endif %}
+        </div>
+        {% elif p.featured %}<span class="badge static">Featured</span>{% endif %}
+        <h3><a href="{% url 'project_detail' p.slug %}">{{ p.title }}</a></h3>
+        <p class="muted">{{ p.summary }}</p>
+        <ul class="chips mono">{% for t in p.tech_list %}<li>{{ t }}</li>{% endfor %}</ul>
+        {% if p.github_url or p.demo_url %}
+        <div class="links">
+          {% if p.github_url %}<a href="{{ p.github_url }}"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>GitHub</a>{% endif %}
+          {% if p.demo_url %}<a href="{{ p.demo_url }}"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Live Demo</a>{% endif %}
+        </div>
+        {% endif %}
+      </article>
+      {% empty %}<p class="none">No projects added yet.</p>{% endfor %}
+    </div>
+  </section>
+
+  {% if experience %}
+  <section class="wrap section" id="experience">
+    <h2><span class="slash">//</span> Experience</h2>
+    <p class="sub">Where I've worked and what I've done</p>
+    <div class="timeline">
+      {% for x in experience %}
+      <div class="entry">
+        <span class="node"></span>
+        <article class="card">
+          <h3 class="job">{{ x.position }}</h3>
+          <p class="company">{{ x.company }}</p>
+          <p class="pill mono">{{ x.duration }}</p>
+          <div class="muted">{{ x.description|linebreaks }}</div>
+          {% if x.tech_list %}<ul class="chips mono">{% for t in x.tech_list %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if education or modules or certifications or achievements %}
+  <section class="wrap section" id="education">
+    <h2><span class="slash">//</span> Education</h2>
+    <p class="sub">Qualifications and what I've studied</p>
+    <div class="stack">
+      {% if education %}
+      <div class="card">
+        <h3 class="label">Education</h3>
+        <ul class="rows">{% for e in education %}<li>{{ e.qualification }}<span>{{ e.institution }}, {{ e.year }}</span></li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+      {% if modules %}
+      <div class="card">
+        <h3 class="label">Coursework</h3>
+        <ul class="rows">{% for m in modules %}<li>{{ m.name }}<span>{{ m.knowledge }}</span></li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+      {% if certifications %}
+      <div class="card">
+        <h3 class="label">Certifications</h3>
+        <ul class="rows">{% for c in certifications %}<li>{% if c.url %}<a href="{{ c.url }}">{{ c.name }}</a>{% else %}{{ c.name }}{% endif %}<span>{{ c.issuer }} {{ c.year }}</span></li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+      {% if achievements %}
+      <div class="card">
+        <h3 class="label">Achievements</h3>
+        <ul class="rows">{% for a in achievements %}<li>{{ a.title }}<span>{{ a.detail }}</span></li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if testimonials %}
+  <section class="wrap section" id="testimonials">
+    <h2><span class="slash">//</span> Testimonials</h2>
+    <p class="sub">Kind words from people I've worked with</p>
+    <div class="stack">
+      {% for t in testimonials %}<blockquote class="card">{{ t.quote }}<footer>{{ t.author }}, {{ t.role }}</footer></blockquote>{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="section contact" id="contact">
+    <h2 class="center"><span class="slash">//</span> Contact</h2>
+    <p class="sub center">Let's connect and build something great</p>
+    <div class="icons">
+      <a href="mailto:{{ profile.email }}" aria-label="Email"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></a>
+      {% if profile.github %}<a href="{{ profile.github }}" aria-label="GitHub"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></a>{% endif %}
+      {% if profile.linkedin %}<a href="{{ profile.linkedin }}" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></a>{% endif %}
+      <a href="#message" aria-label="Send a message"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 20.5l1.5-5.3A8 8 0 1 1 21 12z"/></svg></a>
+    </div>
+    {% if profile.phone or profile.location %}<p class="center muted">{{ profile.phone }}{% if profile.phone and profile.location %} &middot; {% endif %}{{ profile.location }}</p>{% endif %}
+
+    <div class="wrap narrow" id="message">
+      {% for m in messages %}<p class="notice">{{ m }}</p>{% endfor %}
+      <form class="card" method="post" novalidate>
+        {% csrf_token %}
+        {% for f in form %}
+        <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+        {{ f }}
+        {% for err in f.errors %}<p class="error">{{ err }}</p>{% endfor %}
+        {% endfor %}
+        <button class="btn primary" type="submit">Send message</button>
+      </form>
+    </div>
+  </section>
+</main>
+{% endif %}
+{% endblock %}

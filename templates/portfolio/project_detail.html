@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} | Portfolio{% endblock %}
+{% block content %}
+<main class="wrap detail">
+  <a class="back" href="{% url 'home' %}#projects">&larr; Back to projects</a>
+  <h1>{{ project.title }}</h1>
+  <p class="muted">{{ project.summary }}</p>
+  <ul class="chips mono">{% for t in project.tech_list %}<li>{{ t }}</li>{% endfor %}</ul>
+  {% if project.image %}<img class="detail-shot" src="{{ project.image.url }}" alt="Screenshot of {{ project.title }}">{% endif %}
+  <div class="prose muted">{{ project.description|linebreaks }}</div>
+  <div class="actions">
+    {% if project.github_url %}<a class="btn" href="{{ project.github_url }}">GitHub</a>{% endif %}
+    {% if project.demo_url %}<a class="btn primary" href="{{ project.demo_url }}">Live Demo</a>{% endif %}
+  </div>
+</main>
+{% endblock %}
